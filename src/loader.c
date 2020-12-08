@@ -745,22 +745,22 @@ static void UNUSED bug_on() {
 }
 
 /** register once set */
-static pthread_once_t g_cuda_set = PTHREAD_ONCE_INIT;
-static pthread_once_t g_driver_set = PTHREAD_ONCE_INIT;
+// static pthread_once_t g_cuda_set = PTHREAD_ONCE_INIT;
+// static pthread_once_t g_driver_set = PTHREAD_ONCE_INIT;
 
 resource_data_t g_vcuda_config = {
     .pod_uid = "",
     .limit = 0,
     .container_name = "",
     .utilization = 0,
-    .gpu_memory = 0,
-    .enable = 1,
+    .gpu_memory = 268435456,
+    .enable = 0,
 };
 
 static char base_dir[FILENAME_MAX] = EMPTY_PREFIX;
 char config_path[FILENAME_MAX] = CONTROLLER_CONFIG_PATH;
 char pid_path[FILENAME_MAX] = PIDS_CONFIG_PATH;
-char driver_version[FILENAME_MAX] = "";
+char driver_version[FILENAME_MAX] = "418.116.00";
 
 static void load_driver_libraries() {
   void *table = NULL;
@@ -969,127 +969,127 @@ DONE:
   return ret;
 }
 
-static int get_path_by_cgroup(const char *pid_cgroup) {
-  int ret = 1;
-  char pod_uid[4096], container_id[4096];
+// static int get_path_by_cgroup(const char *pid_cgroup) {
+//   int ret = 1;
+//   char pod_uid[4096], container_id[4096];
 
-  if (is_custom_config_path()) {
-    return 0;
-  }
+//   if (is_custom_config_path()) {
+//     return 0;
+//   }
 
-  if (unlikely(get_cgroup_data(pid_cgroup, pod_uid, container_id,
-                               sizeof(container_id)))) {
-    LOGGER(4, "can't find container id from %s", pid_cgroup);
-    goto DONE;
-  }
+//   if (unlikely(get_cgroup_data(pid_cgroup, pod_uid, container_id,
+//                                sizeof(container_id)))) {
+//     LOGGER(4, "can't find container id from %s", pid_cgroup);
+//     goto DONE;
+//   }
 
-  snprintf(base_dir, sizeof(base_dir), "%s%s", VCUDA_CONFIG_PATH, container_id);
-  snprintf(config_path, sizeof(config_path), "%s/%s", base_dir,
-           CONTROLLER_CONFIG_NAME);
-  snprintf(pid_path, sizeof(pid_path), "%s/%s", base_dir, PIDS_CONFIG_NAME);
+//   snprintf(base_dir, sizeof(base_dir), "%s%s", VCUDA_CONFIG_PATH, container_id);
+//   snprintf(config_path, sizeof(config_path), "%s/%s", base_dir,
+//            CONTROLLER_CONFIG_NAME);
+//   snprintf(pid_path, sizeof(pid_path), "%s/%s", base_dir, PIDS_CONFIG_NAME);
 
-  LOGGER(4, "config file: %s", config_path);
-  LOGGER(4, "pid file: %s", pid_path);
-  ret = 0;
+//   LOGGER(4, "config file: %s", config_path);
+//   LOGGER(4, "pid file: %s", pid_path);
+//   ret = 0;
 
-  LOGGER(4, "register to remote: pod uid: %s, cont id: %s", pod_uid,
-         container_id);
-  register_to_remote_with_data("", pod_uid, container_id);
-DONE:
-  return ret;
-}
+//   LOGGER(4, "register to remote: pod uid: %s, cont id: %s", pod_uid,
+//          container_id);
+//   register_to_remote_with_data("", pod_uid, container_id);
+// DONE:
+//   return ret;
+// }
 
-static int is_default_config_path() {
-  int fd = -1;
+// static int is_default_config_path() {
+//   int fd = -1;
 
-  fd = open(config_path, O_RDONLY);
-  if (fd == -1) {
-    return 0;
-  }
+//   fd = open(config_path, O_RDONLY);
+//   if (fd == -1) {
+//     return 0;
+//   }
 
-  close(fd);
+//   close(fd);
 
-  return 1;
-}
+//   return 1;
+// }
 
-static void matchRegex(const char *pattern, const char *matchString,
-                       char *version) {
-  regex_t regex;
-  int reti;
-  regmatch_t matches[1];
-  char msgbuf[512];
+// static void matchRegex(const char *pattern, const char *matchString,
+//                        char *version) {
+//   regex_t regex;
+//   int reti;
+//   regmatch_t matches[1];
+//   char msgbuf[512];
 
-  reti = regcomp(&regex, pattern, REG_EXTENDED);
-  if (reti) {
-    LOGGER(4, "Could not compile regex: %s", DRIVER_VERSION_MATCH_PATTERN);
-    return;
-  }
+//   reti = regcomp(&regex, pattern, REG_EXTENDED);
+//   if (reti) {
+//     LOGGER(4, "Could not compile regex: %s", DRIVER_VERSION_MATCH_PATTERN);
+//     return;
+//   }
 
-  reti = regexec(&regex, matchString, 1, matches, 0);
-  switch (reti) {
-    case 0:
-      strncpy(version, matchString + matches[0].rm_so,
-              matches[0].rm_eo - matches[0].rm_so);
-      version[matches[0].rm_eo - matches[0].rm_so] = '\0';
-      break;
-    case REG_NOMATCH:
-      LOGGER(4, "Regex does not match for string: %s", matchString);
-      break;
-    default:
-      regerror(reti, &regex, msgbuf, sizeof(msgbuf));
-      LOGGER(4, "Regex match failed: %s", msgbuf);
-  }
+//   reti = regexec(&regex, matchString, 1, matches, 0);
+//   switch (reti) {
+//     case 0:
+//       strncpy(version, matchString + matches[0].rm_so,
+//               matches[0].rm_eo - matches[0].rm_so);
+//       version[matches[0].rm_eo - matches[0].rm_so] = '\0';
+//       break;
+//     case REG_NOMATCH:
+//       LOGGER(4, "Regex does not match for string: %s", matchString);
+//       break;
+//     default:
+//       regerror(reti, &regex, msgbuf, sizeof(msgbuf));
+//       LOGGER(4, "Regex match failed: %s", msgbuf);
+//   }
 
-  regfree(&regex);
-  return;
-}
+//   regfree(&regex);
+//   return;
+// }
 
-static void read_version_from_proc(char *version) {
-  char *line = NULL;
-  size_t len = 0;
+// static void read_version_from_proc(char *version) {
+//   char *line = NULL;
+//   size_t len = 0;
 
-  FILE *fp = fopen(DRIVER_VERSION_PROC_PATH, "r");
-  if (fp == NULL) {
-    LOGGER(4, "can't open %s, error %s", DRIVER_VERSION_PROC_PATH,
-           strerror(errno));
-    return;
-  }
+//   FILE *fp = fopen(DRIVER_VERSION_PROC_PATH, "r");
+//   if (fp == NULL) {
+//     LOGGER(4, "can't open %s, error %s", DRIVER_VERSION_PROC_PATH,
+//            strerror(errno));
+//     return;
+//   }
 
-  while ((getline(&line, &len, fp) != -1)) {
-    if (strncmp(line, "NVRM", 4) == 0) {
-      matchRegex(DRIVER_VERSION_MATCH_PATTERN, line, version);
-      break;
-    }
-  }
-  fclose(fp);
-}
+//   while ((getline(&line, &len, fp) != -1)) {
+//     if (strncmp(line, "NVRM", 4) == 0) {
+//       matchRegex(DRIVER_VERSION_MATCH_PATTERN, line, version);
+//       break;
+//     }
+//   }
+//   fclose(fp);
+// }
 
 int read_controller_configuration() {
-  int fd = 0;
-  int rsize;
+  // int fd = 0;
+  // int rsize;
   int ret = 1;
 
-  if (!is_default_config_path()) {
-    if (get_path_by_cgroup("/proc/self/cgroup")) {
-      LOGGER(FATAL, "can't get config file path");
-    }
-  }
+//   if (!is_default_config_path()) {
+//     if (get_path_by_cgroup("/proc/self/cgroup")) {
+//       LOGGER(FATAL, "can't get config file path");
+//     }
+//   }
 
-  fd = open(config_path, O_RDONLY);
-  if (unlikely(fd == -1)) {
-    LOGGER(4, "can't open %s, error %s", config_path, strerror(errno));
-    goto DONE;
-  }
+//   fd = open(config_path, O_RDONLY);
+//   if (unlikely(fd == -1)) {
+//     LOGGER(4, "can't open %s, error %s", config_path, strerror(errno));
+//     goto DONE;
+//   }
 
-  rsize = (int) read(fd, (void *) &g_vcuda_config, sizeof(resource_data_t));
-  if (unlikely(rsize != sizeof(g_vcuda_config))) {
-    LOGGER(4, "can't read %s, need %zu but got %d", CONTROLLER_CONFIG_PATH,
-           sizeof(resource_data_t), rsize);
-    goto DONE;
-  }
+//   rsize = (int) read(fd, (void *) &g_vcuda_config, sizeof(resource_data_t));
+//   if (unlikely(rsize != sizeof(g_vcuda_config))) {
+//     LOGGER(4, "can't read %s, need %zu but got %d", CONTROLLER_CONFIG_PATH,
+//            sizeof(resource_data_t), rsize);
+//     goto DONE;
+//   }
 
-  read_version_from_proc(driver_version);
-  ret = 0;
+   //read_version_from_proc(driver_version);
+   ret = 0;
 
   LOGGER(4, "pod uid          : %s", g_vcuda_config.pod_uid);
   LOGGER(4, "limit            : %d", g_vcuda_config.limit);
@@ -1099,20 +1099,28 @@ int read_controller_configuration() {
   LOGGER(4, "driver version   : %s", driver_version);
   LOGGER(4, "hard limit mode  : %d", g_vcuda_config.hard_limit);
   LOGGER(4, "enable mode      : %d", g_vcuda_config.enable);
-DONE:
-  if (likely(fd)) {
-    close(fd);
-  }
+// DONE:
+//   if (likely(fd)) {
+//     close(fd);
+//   }
 
   return ret;
 }
 
 void load_necessary_data() {
+  LOGGER(4,"load_necessary_data");
   read_controller_configuration();
   load_cuda_single_library(CUDA_ENTRY_ENUM(cuDriverGetVersion));
+    LOGGER(4,"load_cuda_libraries");
 
-  pthread_once(&g_cuda_set, load_cuda_libraries);
-  pthread_once(&g_driver_set, load_driver_libraries);
+  load_cuda_libraries();
+      LOGGER(4,"load_driver_libraries");
+
+  load_driver_libraries();
+  // pthread_once(&g_cuda_set, load_cuda_libraries);
+  // pthread_once(&g_driver_set, load_driver_libraries);
+  LOGGER(4,"load_necessary_data finished");
+
 }
 
 int is_custom_config_path() { return strcmp(base_dir, EMPTY_PREFIX) != 0; }

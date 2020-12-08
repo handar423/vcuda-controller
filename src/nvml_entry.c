@@ -30,12 +30,14 @@ extern resource_data_t g_vcuda_config;
 
 extern nvmlReturn_t nvmlInitWithFlags(unsigned int flags) {
   load_necessary_data();
+  LOGGER(4,"nvmlInitWithFlags");
 
   return NVML_ENTRY_CALL(nvml_library_entry, nvmlInitWithFlags, flags);
 }
 
 nvmlReturn_t nvmlInit_v2(void) {
   load_necessary_data();
+  LOGGER(4,"nvmlInit_v2");
 
   return NVML_ENTRY_CALL(nvml_library_entry, nvmlInit_v2);
 }

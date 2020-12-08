@@ -1069,7 +1069,7 @@ CUresult cuGLUnmapBufferObjectAsync(GLuint buffer, CUstream hStream) {
                          hStream);
 }
 
-CUresult cuGLUnregisterBufferObject(GLuint buffer) {
+/*CUresult cuGLUnregisterBufferObject(GLuint buffer) {
   return CUDA_ENTRY_CALL(cuda_library_entry, cuGLUnregisterBufferObject,
                          buffer);
 }
@@ -1204,7 +1204,7 @@ CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource *pCudaResource,
                          cuGraphicsVDPAURegisterOutputSurface, pCudaResource,
                          vdpSurface, flags);
 }
-
+*/
 CUresult cuGetExportTable(const void **ppExportTable,
                           const CUuuid *pExportTableId) {
   return CUDA_ENTRY_CALL(cuda_library_entry, cuGetExportTable, ppExportTable,

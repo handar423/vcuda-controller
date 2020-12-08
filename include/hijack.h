@@ -147,10 +147,11 @@ typedef enum {
       _print_level = (int)strtoul(_print_level_str, NULL, 10);  \
       _print_level = _print_level < 0 ? 3 : _print_level;       \
     }                                                           \
-    if (level <= _print_level) {                                \
-      fprintf(stderr, "%s:%d " format "\n", __FILE__, __LINE__, \
+    FILE *fptr; \
+    fptr = fopen("/tmp/cudalog","a");\
+    fprintf(fptr, "%s:%d " format "\n", __FILE__, __LINE__, \
               ##__VA_ARGS__);                                   \
-    }                                                           \
+    fclose(fptr);\
     if (level == FATAL) {                                       \
       exit(-1);                                                 \
     }                                                           \
