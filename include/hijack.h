@@ -168,6 +168,7 @@ int read_controller_configuration();
  * Load library and initialize some data
  */
 void load_necessary_data();
+uint64_t idle_time;
 
 /**
  * Register data to remote controller to retrieve configuration
@@ -186,6 +187,8 @@ void register_to_remote_with_data(const char *bus_id, const char *pod_uid,
  */
 int is_custom_config_path();
 
+// void ReadInt64FromEnvVar(const char * env_var_name, uint64_t default_val,
+//                            uint64_t* value);
 #ifdef __cplusplus
 }
 #endif

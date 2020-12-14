@@ -745,7 +745,7 @@ static void UNUSED bug_on() {
 }
 
 /** register once set */
-// static pthread_once_t g_cuda_set = PTHREAD_ONCE_INIT;
+static pthread_once_t g_cuda_set = PTHREAD_ONCE_INIT;
 // static pthread_once_t g_driver_set = PTHREAD_ONCE_INIT;
 
 resource_data_t g_vcuda_config = {
@@ -1107,20 +1107,44 @@ int read_controller_configuration() {
   return ret;
 }
 
-void load_necessary_data() {
-  LOGGER(4,"load_necessary_data");
-  read_controller_configuration();
-  load_cuda_single_library(CUDA_ENTRY_ENUM(cuDriverGetVersion));
-    LOGGER(4,"load_cuda_libraries");
-
-  load_cuda_libraries();
-      LOGGER(4,"load_driver_libraries");
-
-  load_driver_libraries();
-  // pthread_once(&g_cuda_set, load_cuda_libraries);
-  // pthread_once(&g_driver_set, load_driver_libraries);
-  LOGGER(4,"load_necessary_data finished");
-
+void ReadInt64FromEnvVar(const char * env_var_name, uint64_t default_val,
+                           uint64_t* value) {
+  *value = default_val;
+  const char* tf_env_var_val = getenv(env_var_name);
+  if (tf_env_var_val == NULL) {
+    return;
+  }
+  if (strcmp(tf_env_var_val,"1")==0) {
+    *value = 1;
+  }else if (strcmp(tf_env_var_val,"10")==0){
+    *value = 10;
+  }else if (strcmp(tf_env_var_val, "100") == 0){
+    *value = 100;
+  }
+  return ;
 }
+
+void load_sim(){
+load_cuda_single_library(CUDA_ENTRY_ENUM(cuDriverGetVersion));
+load_cuda_libraries();
+load_driver_libraries();
+ReadInt64FromEnvVar("USAGE_GPU",0,&idle_time);
+}
+void load_necessary_data() {
+  // LOGGER(4,"load_necessary_data");
+  // read_controller_configuration();
+  
+
+  // load_cuda_libraries();
+  // load_driver_libraries();
+  pthread_once(&g_cuda_set, load_sim);
+  // pthread_once(&g_driver_set, load_driver_libraries);
+  // LOGGER(4,"load_necessary_data finished");
+  // uint64_t idle_time; 
+  
+  // LOGGER(4,"%" PRIu64 "\n",idle_time);
+}
+
+
 
 int is_custom_config_path() { return strcmp(base_dir, EMPTY_PREFIX) != 0; }
