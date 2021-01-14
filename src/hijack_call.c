@@ -106,11 +106,12 @@ typedef struct {
   char kernel_name[128];
 } kernel_record_t;
 
+static unsigned long long kernel_counter = 0;
+static unsigned long long kernel_counter_last_time = 0;
 static kernel_record_t kernel_record_cache[1024];
 static unsigned long kernel_record_cache_head = 0, kernel_record_cache_tail = 0;
 static void kernel_record_cache_add(char kernel_name[128]) {
   // printf ("Record, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
-
   kernel_record_cache[kernel_record_cache_tail].pid = getpid();
 
   struct timeval tv;
@@ -123,6 +124,13 @@ static void kernel_record_cache_add(char kernel_name[128]) {
   kernel_record_cache_tail++;
   if (kernel_record_cache_tail == 1024)
     kernel_record_cache_tail = 0;
+
+  kernel_counter++;
+  if (tv.tv_sec > kernel_counter_last_time) {
+    printf ('Kernel per second: %llu\n', kernel_counter);
+    kernel_counter_last_time = tv.tv_sec;
+    kernel_counter = 0;
+  }
 }
 static void* kernel_record_cache_save(void* args) {
   printf("Thread Created\n");
