@@ -123,8 +123,8 @@ static void* kernel_record_cache_save(void* args) {
   printf("Thread Created\n");
   FILE *fout = fopen("log.bin" , "a+b"); 
   while (1) {
-    printf ("try to log, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
     if (kernel_record_cache_tail != kernel_record_cache_head) {
+      printf ("log, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
       fwrite(&(kernel_record_cache[kernel_record_cache_head]), sizeof(kernel_record_t), 1, fout);
 
       kernel_record_cache_head++;
