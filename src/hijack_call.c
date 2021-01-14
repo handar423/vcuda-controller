@@ -48,10 +48,10 @@ static int g_sm_num = 0;
 static int g_block_x = 1, g_block_y = 1, g_block_z = 1;
 // static uint32_t g_block_locker = 0;
 
-static const struct timespec g_cycle = {
-    .tv_sec = 0,
-    .tv_nsec = 0 * MILLISEC,
-};
+// static const struct timespec g_cycle = {
+//     .tv_sec = 0,
+//     .tv_nsec = 0 * MILLISEC,
+// };
 
 // static const struct timespec g_wait = {
 //     .tv_sec = 0,
