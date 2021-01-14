@@ -122,7 +122,7 @@ static void kernel_record_cache_save() {
   FILE *fout = fopen("log.bin" , "a+b"); 
   while (1) {
     if (kernel_record_cache_tail != kernel_record_cache_head) {
-      write(fout, &(kernel_record_cache[kernel_record_cache_head]), sizeof(kernel_record_t));
+      fwrite(&(kernel_record_cache[kernel_record_cache_head]), sizeof(kernel_record_t), 1, fout);
 
       kernel_record_cache_head++;
       if (kernel_record_cache_head == 1024)
