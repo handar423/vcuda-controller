@@ -118,7 +118,7 @@ static void kernel_record_cache_add(unsigned long pid, unsigned long long time_s
   if (kernel_record_cache_tail == 1024)
     kernel_record_cache_tail = 0;
 }
-static void* kernel_record_cache_save(void*) {
+static void* kernel_record_cache_save(void* args) {
   FILE *fout = fopen("log.bin" , "a+b"); 
   while (1) {
     if (kernel_record_cache_tail != kernel_record_cache_head) {
