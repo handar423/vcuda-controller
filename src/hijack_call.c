@@ -905,7 +905,7 @@ CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX,
   rate_limiter(gridDimX * gridDimY * gridDimZ,
                blockDimX * blockDimY * blockDimZ);
 
-  printf ("Test installed lib\n");
+  // printf ("Test installed lib\n");
 
   return CUDA_ENTRY_CALL(cuda_library_entry, cuLaunchKernel, f, gridDimX,
                          gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ,
