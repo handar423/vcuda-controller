@@ -131,6 +131,9 @@ static void* kernel_record_cache_save(void* args) {
       if (kernel_record_cache_head == 1024)
         kernel_record_cache_head = 0;
     }
+    else {
+      usleep(1000);
+    }
   }
   return NULL;
 }
