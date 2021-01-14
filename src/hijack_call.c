@@ -127,7 +127,7 @@ static void kernel_record_cache_add(char kernel_name[128]) {
 
   kernel_counter++;
   if (tv.tv_sec > kernel_counter_last_time) {
-    printf ('Kernel per second: %llu\n', kernel_counter);
+    printf ("Kernel per second: %llu\n", kernel_counter);
     kernel_counter_last_time = tv.tv_sec;
     kernel_counter = 0;
   }
