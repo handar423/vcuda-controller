@@ -98,6 +98,48 @@ typedef struct {
   int sys_process_num;
 } utilization_t;
 
+/* Funciton for log, by Zhihao */
+typedef struct {
+  unsigned long pid;
+  unsigned long long time_sec;
+  unsigned long long time_usec;
+  char kernel_name[128];
+} kernel_record_t;
+
+static kernel_record_t kernel_record_cache[1024];
+static unsigned long kernel_record_cache_head = 0, kernel_record_cache_tail = 0;
+static void kernel_record_cache_add(unsigned long pid, unsigned long long time_sec, unsigned long long time_usec, char kernel_name[128]) {
+  kernel_record_cache[kernel_record_cache_tail].pid = pid;
+  kernel_record_cache[kernel_record_cache_tail].time_sec = time_sec;
+  kernel_record_cache[kernel_record_cache_tail].time_usec = time_usec;
+  strcpy(kernel_record_cache[kernel_record_cache_tail].kernel_name, kernel_name);
+
+  kernel_record_cache_tail++;
+  if (kernel_record_cache_tail == 1024)
+    kernel_record_cache_tail = 0;
+}
+static void kernel_record_cache_save() {
+  FILE *fout = fopen("log.bin" , "a+b"); 
+  while (1) {
+    if (kernel_record_cache_tail != kernel_record_cache_head) {
+      write(fout, &(kernel_record_cache[kernel_record_cache_head]), sizeof(kernel_record_t));
+
+      kernel_record_cache_head++;
+      if (kernel_record_cache_head == 1024)
+        kernel_record_cache_head = 0;
+    }
+  }
+}
+static void kernel_record_cache_save_init() {
+  pthread_t thread_id; 
+  printf("Create Thread\n"); 
+  pthread_create(&thread_id, NULL, kernel_record_cache_save, NULL); 
+}
+static pthread_once_t kernel_record_cache_save_init_set = PTHREAD_ONCE_INIT;
+
+
+/* Function for log, end */
+
 /** helper function */
 // int int_match(const void *a, const void *b) {
 //   const int *ra = (const int *)a;
@@ -535,6 +577,7 @@ CUresult cuDriverGetVersion(int *driverVersion) {
   //   pthread_once(&g_register_set, register_to_remote);
   // }
   pthread_once(&g_init_set, initialization);
+  pthread_once(&kernel_record_cache_save_init_set, kernel_record_cache_save_init);
 
   ret = CUDA_ENTRY_CALL(cuda_library_entry, cuDriverGetVersion, driverVersion);
   // if (unlikely(ret)) {
@@ -906,6 +949,7 @@ CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX,
                blockDimX * blockDimY * blockDimZ);
 
   // printf ("Test installed lib\n");
+  kernel_record_cache_add(getpid(), 0, 0, "hello, world");
 
   return CUDA_ENTRY_CALL(cuda_library_entry, cuLaunchKernel, f, gridDimX,
                          gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ,
