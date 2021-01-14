@@ -118,7 +118,7 @@ static void kernel_record_cache_add(unsigned long pid, unsigned long long time_s
   if (kernel_record_cache_tail == 1024)
     kernel_record_cache_tail = 0;
 }
-static void kernel_record_cache_save() {
+static void* kernel_record_cache_save(void*) {
   FILE *fout = fopen("log.bin" , "a+b"); 
   while (1) {
     if (kernel_record_cache_tail != kernel_record_cache_head) {
@@ -130,7 +130,7 @@ static void kernel_record_cache_save() {
     }
   }
 }
-static void* kernel_record_cache_save_init(void* args) {
+static void kernel_record_cache_save_init() {
   pthread_t thread_id; 
   printf("Create Thread\n"); 
   pthread_create(&thread_id, NULL, kernel_record_cache_save, NULL); 
