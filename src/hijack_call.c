@@ -108,11 +108,16 @@ typedef struct {
 
 static kernel_record_t kernel_record_cache[1024];
 static unsigned long kernel_record_cache_head = 0, kernel_record_cache_tail = 0;
-static void kernel_record_cache_add(unsigned long pid, unsigned long long time_sec, unsigned long long time_usec, char kernel_name[128]) {
+static void kernel_record_cache_add(char kernel_name[128]) {
   // printf ("Record, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
-  kernel_record_cache[kernel_record_cache_tail].pid = pid;
-  kernel_record_cache[kernel_record_cache_tail].time_sec = time_sec;
-  kernel_record_cache[kernel_record_cache_tail].time_usec = time_usec;
+
+  kernel_record_cache[kernel_record_cache_tail].pid = getpid();
+
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  kernel_record_cache[kernel_record_cache_tail].time_sec = tv.tv_sec;
+  kernel_record_cache[kernel_record_cache_tail].time_usec = tv.tv_usec;
+
   strcpy(kernel_record_cache[kernel_record_cache_tail].kernel_name, kernel_name);
 
   kernel_record_cache_tail++;
@@ -957,7 +962,7 @@ CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX,
 
   // printf ("Test installed lib\n");
   pthread_once(&kernel_record_cache_save_init_set, kernel_record_cache_save_init);
-  kernel_record_cache_add(getpid(), 0, 0, "hello, world");
+  kernel_record_cache_add("hello, world");
 
   return CUDA_ENTRY_CALL(cuda_library_entry, cuLaunchKernel, f, gridDimX,
                          gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ,
