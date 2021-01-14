@@ -109,6 +109,7 @@ typedef struct {
 static kernel_record_t kernel_record_cache[1024];
 static unsigned long kernel_record_cache_head = 0, kernel_record_cache_tail = 0;
 static void kernel_record_cache_add(unsigned long pid, unsigned long long time_sec, unsigned long long time_usec, char kernel_name[128]) {
+  printf ("Record, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
   kernel_record_cache[kernel_record_cache_tail].pid = pid;
   kernel_record_cache[kernel_record_cache_tail].time_sec = time_sec;
   kernel_record_cache[kernel_record_cache_tail].time_usec = time_usec;
@@ -119,9 +120,11 @@ static void kernel_record_cache_add(unsigned long pid, unsigned long long time_s
     kernel_record_cache_tail = 0;
 }
 static void* kernel_record_cache_save(void* args) {
+  printf("Thread Created\n");
   FILE *fout = fopen("log.bin" , "a+b"); 
   while (1) {
     if (kernel_record_cache_tail != kernel_record_cache_head) {
+      printf ("log, %d, %d\n", kernel_record_cache_tail, kernel_record_cache_head);
       fwrite(&(kernel_record_cache[kernel_record_cache_head]), sizeof(kernel_record_t), 1, fout);
 
       kernel_record_cache_head++;
