@@ -130,7 +130,7 @@ static void kernel_record_cache_save() {
     }
   }
 }
-static void kernel_record_cache_save_init() {
+static void* kernel_record_cache_save_init(void* args) {
   pthread_t thread_id; 
   printf("Create Thread\n"); 
   pthread_create(&thread_id, NULL, kernel_record_cache_save, NULL); 
